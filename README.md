@@ -166,7 +166,6 @@ daysNeededToHitTarget(present, totalWorkingDays, targetDays)
 ## Roadmap
 
 - [ ] PWA install prompt + offline service worker (pending `vite-plugin-pwa` Vite 8 support)
-- [ ] Daily 9 AM push notification — *"Did you go to office today?"*
 - [ ] Export / import attendance as JSON (for backup and device transfer)
 - [ ] Cross-device sync (requires a backend / Supabase)
 
