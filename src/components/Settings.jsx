@@ -46,6 +46,7 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
   const [resetDone, setResetDone]             = useState(false)
   const [installDeferred, setInstallDeferred] = useState(null)
   const [standalone, setStandalone]           = useState(false)
+  const [installHint, setInstallHint]         = useState(false)
 
   useEffect(() => { setInputVal(String(value)) }, [value])
 
@@ -97,6 +98,11 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
   }
 
   async function handleInstall() {
+    if (!installDeferred) {
+      setInstallHint(true)
+      setTimeout(() => setInstallHint(false), 3500)
+      return
+    }
     await triggerInstall()
     setInstallDeferred(null)
   }
@@ -123,19 +129,26 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
 
         {/* Add to Home Screen — shown on any browser unless already installed */}
         {!standalone && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
-            <div>
-              <p className="text-gray-900 dark:text-white text-sm font-medium">Add to Home Screen</p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs">
-                Install for quick offline access
-              </p>
+          <div className="flex flex-col gap-1.5">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
+              <div>
+                <p className="text-gray-900 dark:text-white text-sm font-medium">Add to Home Screen</p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs">
+                  {installDeferred ? 'Install as an app for quick offline access' : 'Install for quick offline access'}
+                </p>
+              </div>
+              <button
+                onClick={handleInstall}
+                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+              >
+                Install
+              </button>
             </div>
-            <button
-              onClick={handleInstall}
-              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
-            >
-              Install
-            </button>
+            {installHint && (
+              <p className="text-gray-500 dark:text-gray-400 text-xs px-1">
+                Tap your browser&apos;s menu (⋮ or Share) and choose <span className="font-medium">Add to Home Screen</span>.
+              </p>
+            )}
           </div>
         )}
       </section>
