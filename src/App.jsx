@@ -76,18 +76,19 @@ export default function App() {
       </header>
 
       <main className="flex-1 overflow-y-auto px-4" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
-        {tab === 'dashboard' && (
+        {/* All tabs stay mounted — hidden with display:none so they always receive prop updates */}
+        <div className={tab === 'dashboard' ? '' : 'hidden'}>
           <Dashboard attendanceMap={attendanceMap} holidayDates={holidayDates} settings={settings} />
-        )}
-        {tab === 'calendar' && (
+        </div>
+        <div className={tab === 'calendar' ? '' : 'hidden'}>
           <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDay={markDay} />
-        )}
-        {tab === 'holidays' && (
+        </div>
+        <div className={tab === 'holidays' ? '' : 'hidden'}>
           <HolidayManager holidays={holidays} addHoliday={addHoliday} deleteHoliday={deleteHoliday} />
-        )}
-        {tab === 'settings' && (
+        </div>
+        <div className={tab === 'settings' ? '' : 'hidden'}>
           <Settings settings={settings} update={update} />
-        )}
+        </div>
       </main>
 
       <nav
