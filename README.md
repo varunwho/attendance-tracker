@@ -90,14 +90,12 @@ A **Danger Zone** section in Settings:
 
 ## Tech Stack
 
-| Layer | Technology | Version |
-|---|---|---|
-| Framework | [React](https://react.dev) | 19 |
-| Build tool | [Vite](https://vite.dev) | 8 |
-| Styling | [Tailwind CSS](https://tailwindcss.com) | 4 |
-| Local database | [Dexie.js](https://dexie.org) (IndexedDB) | 4 |
-| Hosting | [Vercel](https://vercel.com) | — |
-| Language | JavaScript ESM | — |
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Dexie](https://img.shields.io/badge/Dexie.js_4-FF6B35?style=for-the-badge&logo=indexeddb&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript_ESM-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
 
