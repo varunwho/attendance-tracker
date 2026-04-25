@@ -7,6 +7,7 @@ const DEFAULTS = {
   type: 'percentage',  // percentage | days
   value: 50,
   theme: 'dark',       // dark | light
+  quarterStart: 0,     // 0 = January … 11 = December (month Q1 begins)
 }
 
 function load() {
@@ -35,5 +36,9 @@ export function useSettings() {
     setSettings(prev => ({ ...prev, ...patch }))
   }
 
-  return { settings, update }
+  function reset() {
+    setSettings({ ...DEFAULTS })
+  }
+
+  return { settings, update, reset }
 }

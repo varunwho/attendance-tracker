@@ -3,11 +3,11 @@ import {
   getWeekBounds, getYearBounds, toISO
 } from '../utils/workingDays'
 
-function getPeriodBounds(period, date) {
+function getPeriodBounds(period, date, quarterStart = 0) {
   switch (period) {
     case 'weekly':    return getWeekBounds(date)
     case 'monthly':   return getMonthBounds(date)
-    case 'quarterly': return getQuarterBounds(date)
+    case 'quarterly': return getQuarterBounds(date, quarterStart)
     case 'yearly':    return getYearBounds(date)
     default:          return getMonthBounds(date)
   }
@@ -69,46 +69,36 @@ function buildCard(bounds, attendanceMap, holidayDates, today, target, type) {
 
 export default function Dashboard({ attendanceMap, holidayDates, settings }) {
   const today  = new Date()
-  const { period, type, value: target } = settings
+  const { period, type, value: target, quarterStart = 0 } = settings
 
-  const weekData    = buildCard(getWeekBounds(today),    attendanceMap, holidayDates, today, target, type)
-  const monthData   = buildCard(getMonthBounds(today),   attendanceMap, holidayDates, today, target, type)
-  const policyData  = buildCard(getPeriodBounds(period, today), attendanceMap, holidayDates, today, target, type)
-
-  const showPolicyCard = period !== 'weekly' && period !== 'monthly'
+  const policyData  = buildCard(getPeriodBounds(period, today, quarterStart), attendanceMap, holidayDates, today, target, type)
+  const monthData   = period !== 'monthly'
+    ? buildCard(getMonthBounds(today), attendanceMap, holidayDates, today, target, type)
+    : null
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-gray-900 dark:text-white font-semibold text-lg">Overview</h2>
 
-      {/* Policy card — only if it's quarterly / yearly */}
-      {showPolicyCard && (
+      {/* Policy card — always shown; label reflects the configured period */}
+      <StatCard
+        label={PERIOD_LABELS[period]}
+        {...policyData}
+        target={target}
+        type={type}
+        isPolicy
+      />
+
+      {/* Monthly card — only when policy period is not already monthly */}
+      {monthData && (
         <StatCard
-          label={PERIOD_LABELS[period]}
-          {...policyData}
+          label="This Month"
+          {...monthData}
           target={target}
           type={type}
-          isPolicy
+          isPolicy={false}
         />
       )}
-
-      {/* Always-visible: This Week */}
-      <StatCard
-        label="This Week"
-        {...weekData}
-        target={target}
-        type={type}
-        isPolicy={period === 'weekly'}
-      />
-
-      {/* Always-visible: This Month */}
-      <StatCard
-        label="This Month"
-        {...monthData}
-        target={target}
-        type={type}
-        isPolicy={period === 'monthly'}
-      />
     </div>
   )
 }

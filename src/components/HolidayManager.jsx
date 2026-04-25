@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toISO } from '../utils/workingDays'
+import { NATIONAL_HOLIDAYS } from '../utils/nationalHolidays'
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -50,11 +51,30 @@ export default function HolidayManager({ holidays, addHoliday, deleteHoliday }) 
         </button>
       </form>
 
-      {sorted.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-500 text-sm text-center py-4">No holidays added yet</p>
-      ) : (
+      {/* Static national holidays */}
+      <div className="flex flex-col gap-2">
+        <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">National Holidays</p>
         <ul className="flex flex-col gap-2">
-          {sorted.map(h => (
+          {NATIONAL_HOLIDAYS.map(h => (
+            <li key={h.label} className="bg-orange-50 dark:bg-orange-950 rounded-xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-orange-800 dark:text-orange-200 text-sm font-medium">{h.label}</p>
+                <p className="text-orange-500 dark:text-orange-400 text-xs">{MONTHS[h.month - 1]} {h.day} · Every year</p>
+              </div>
+              <span className="text-orange-400 dark:text-orange-500 text-[10px] font-medium bg-orange-100 dark:bg-orange-900 px-2 py-0.5 rounded-full">National</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* User-added holidays */}
+      <div className="flex flex-col gap-2">
+        <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Your Holidays</p>
+        {sorted.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-500 text-sm text-center py-4">No holidays added yet</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {sorted.map(h => (
             <li key={h.id} className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
               <div>
                 <p className="text-gray-900 dark:text-white text-sm font-medium">{h.label}</p>
@@ -67,9 +87,10 @@ export default function HolidayManager({ holidays, addHoliday, deleteHoliday }) 
                 ×
               </button>
             </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
