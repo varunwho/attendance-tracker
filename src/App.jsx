@@ -3,6 +3,7 @@ import Dashboard      from './components/Dashboard'
 import CalendarView   from './components/CalendarView'
 import HolidayManager from './components/HolidayManager'
 import Settings       from './components/Settings'
+import InstallPrompt  from './components/InstallPrompt'
 import { useAttendance } from './hooks/useAttendance'
 import { useSettings }   from './hooks/useSettings'
 
@@ -65,8 +66,8 @@ const TABS = [
 
 export default function App() {
   const [tab, setTab] = useState('dashboard')
-  const { attendanceMap, holidays, holidayDates, markDay, addHoliday, deleteHoliday } = useAttendance()
-  const { settings, update } = useSettings()
+  const { settings, update, reset: resetSettings } = useSettings()
+  const { attendanceMap, holidays, holidayDates, markDay, addHoliday, deleteHoliday, clearPeriod, clearHolidaysPeriod, resetAll } = useAttendance(settings.quarterStart)
 
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col max-w-lg mx-auto w-full">
@@ -81,15 +82,17 @@ export default function App() {
           <Dashboard attendanceMap={attendanceMap} holidayDates={holidayDates} settings={settings} />
         </div>
         <div className={tab === 'calendar' ? '' : 'hidden'}>
-          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDay={markDay} />
+          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDay={markDay} addHoliday={addHoliday} />
         </div>
         <div className={tab === 'holidays' ? '' : 'hidden'}>
           <HolidayManager holidays={holidays} addHoliday={addHoliday} deleteHoliday={deleteHoliday} />
         </div>
         <div className={tab === 'settings' ? '' : 'hidden'}>
-          <Settings settings={settings} update={update} />
+          <Settings settings={settings} update={update} clearPeriod={clearPeriod} clearHolidaysPeriod={clearHolidaysPeriod} resetAll={resetAll} resetSettings={resetSettings} />
         </div>
       </main>
+
+      <InstallPrompt />
 
       <nav
         className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex max-w-lg mx-auto w-full"

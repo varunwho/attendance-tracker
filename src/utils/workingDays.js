@@ -37,10 +37,19 @@ export function getMonthBounds(date) {
   return { start, end }
 }
 
-export function getQuarterBounds(date) {
-  const quarterStart = Math.floor(date.getMonth() / 3) * 3
-  const start = new Date(date.getFullYear(), quarterStart, 1)
-  const end   = new Date(date.getFullYear(), quarterStart + 3, 0)
+export function getQuarterBounds(date, quarterStart = 0) {
+  const year  = date.getFullYear()
+  const month = date.getMonth()
+  // How far into the fiscal year is this month?
+  const monthOffset = ((month - quarterStart) % 12 + 12) % 12
+  // Which quarter within the fiscal year (0–3)?
+  const qIdx       = Math.floor(monthOffset / 3)
+  // Calendar month where this quarter begins (may overflow → JS handles it)
+  const qStartMonth = (quarterStart + qIdx * 3) % 12
+  // If the quarter's start month is after the current month, it started last year
+  const qStartYear  = qStartMonth > month ? year - 1 : year
+  const start = new Date(qStartYear, qStartMonth, 1)
+  const end   = new Date(qStartYear, qStartMonth + 3, 0) // day 0 = last day of prev month
   return { start, end }
 }
 
