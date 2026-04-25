@@ -90,14 +90,12 @@ A **Danger Zone** section in Settings:
 
 ## Tech Stack
 
-| Layer | Technology | Version |
-|---|---|---|
-| Framework | [React](https://react.dev) | 19 |
-| Build tool | [Vite](https://vite.dev) | 8 |
-| Styling | [Tailwind CSS](https://tailwindcss.com) | 4 |
-| Local database | [Dexie.js](https://dexie.org) (IndexedDB) | 4 |
-| Hosting | [Vercel](https://vercel.com) | — |
-| Language | JavaScript ESM | — |
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Dexie](https://img.shields.io/badge/Dexie.js_4-FF6B35?style=for-the-badge&logo=indexeddb&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript_ESM-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
 
@@ -174,51 +172,6 @@ daysNeededToHitTarget(present, totalWorkingDays, targetDays)
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm 9+
-
-### Run locally
-
-```bash
-git clone https://github.com/your-username/attendance-tracker.git
-cd attendance-tracker
-npm install
-npm run dev
-```
-
-Opens at `http://localhost:5173`.
-
-**Test on your phone** (same Wi-Fi):
-
-```bash
-# macOS — find your local IP
-ipconfig getifaddr en0
-
-# Open in your phone's browser
-http://<your-ip>:5173
-```
-
-### Build for production
-
-```bash
-npm run build
-# Output → dist/
-```
-
-### Capture screenshots
-
-```bash
-# With dev server already running:
-node screenshot.mjs
-# Output → docs/screenshots/
-```
-
----
-
 ## Deployment
 
 ### Vercel (recommended)
@@ -254,14 +207,6 @@ The following holidays are built into the app as a static list — they apply ev
 | Oct 2 | Gandhi Jayanti |
 
 All other holidays (Diwali, Holi, Eid, company-specific days, PTO) can be added manually from the **Holidays** tab.
-
----
-
-## Roadmap
-
-- [ ] PWA service worker + offline install (pending `vite-plugin-pwa` Vite 8 support)
-- [ ] Export / import attendance as JSON
-- [ ] Cross-device sync (requires a backend / Supabase)
 
 ---
 

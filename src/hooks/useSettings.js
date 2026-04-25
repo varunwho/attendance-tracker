@@ -10,11 +10,29 @@ const DEFAULTS = {
   quarterStart: 0,     // 0 = January … 11 = December (month Q1 begins)
 }
 
+const VALID_PERIODS       = new Set(['weekly', 'monthly', 'quarterly', 'yearly'])
+const VALID_TYPES         = new Set(['percentage', 'days'])
+const VALID_THEMES        = new Set(['dark', 'light'])
+
+function sanitize(raw) {
+  return {
+    period:       VALID_PERIODS.has(raw.period)           ? raw.period       : DEFAULTS.period,
+    type:         VALID_TYPES.has(raw.type)               ? raw.type         : DEFAULTS.type,
+    value:        Number.isFinite(raw.value) && raw.value >= 1 && raw.value <= 365
+                    ? raw.value : DEFAULTS.value,
+    theme:        VALID_THEMES.has(raw.theme)             ? raw.theme        : DEFAULTS.theme,
+    quarterStart: Number.isInteger(raw.quarterStart) && raw.quarterStart >= 0 && raw.quarterStart <= 11
+                    ? raw.quarterStart : DEFAULTS.quarterStart,
+  }
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...DEFAULTS, ...JSON.parse(raw) } : { ...DEFAULTS }
+    if (!raw) return { ...DEFAULTS }
+    return sanitize({ ...DEFAULTS, ...JSON.parse(raw) })
   } catch {
+    localStorage.removeItem(STORAGE_KEY)
     return { ...DEFAULTS }
   }
 }

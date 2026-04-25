@@ -16,9 +16,12 @@ export default function HolidayManager({ holidays, addHoliday, deleteHoliday }) 
 
   async function handleAdd(e) {
     e.preventDefault()
-    if (!date || !label.trim()) { setError('Enter both a date and a name.'); return }
+    const trimmed = label.trim()
+    if (!date || !trimmed) { setError('Enter both a date and a name.'); return }
+    if (trimmed.length > 100) { setError('Name must be 100 characters or fewer.'); return }
+    if (isNaN(new Date(date).getTime())) { setError('Invalid date.'); return }
     setError('')
-    await addHoliday(date, label.trim())
+    await addHoliday(date, trimmed)
     setLabel('')
   }
 
