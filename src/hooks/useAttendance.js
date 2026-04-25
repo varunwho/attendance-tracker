@@ -22,7 +22,7 @@ function useTable(fetcher) {
   const [data, setData] = useState([])
 
   const refresh = useCallback(() => {
-    fetcher().then(setData).catch(console.error)
+    fetcher().then(setData).catch(() => {})
   }, [fetcher])
 
   useEffect(() => { refresh() }, [refresh])

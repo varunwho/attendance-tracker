@@ -174,51 +174,6 @@ daysNeededToHitTarget(present, totalWorkingDays, targetDays)
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm 9+
-
-### Run locally
-
-```bash
-git clone https://github.com/your-username/attendance-tracker.git
-cd attendance-tracker
-npm install
-npm run dev
-```
-
-Opens at `http://localhost:5173`.
-
-**Test on your phone** (same Wi-Fi):
-
-```bash
-# macOS — find your local IP
-ipconfig getifaddr en0
-
-# Open in your phone's browser
-http://<your-ip>:5173
-```
-
-### Build for production
-
-```bash
-npm run build
-# Output → dist/
-```
-
-### Capture screenshots
-
-```bash
-# With dev server already running:
-node screenshot.mjs
-# Output → docs/screenshots/
-```
-
----
-
 ## Deployment
 
 ### Vercel (recommended)
@@ -254,14 +209,6 @@ The following holidays are built into the app as a static list — they apply ev
 | Oct 2 | Gandhi Jayanti |
 
 All other holidays (Diwali, Holi, Eid, company-specific days, PTO) can be added manually from the **Holidays** tab.
-
----
-
-## Roadmap
-
-- [ ] PWA service worker + offline install (pending `vite-plugin-pwa` Vite 8 support)
-- [ ] Export / import attendance as JSON
-- [ ] Cross-device sync (requires a backend / Supabase)
 
 ---
 
