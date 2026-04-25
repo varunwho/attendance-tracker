@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getWeekBounds, getMonthBounds, getQuarterBounds, getYearBounds, toISO } from '../utils/workingDays'
-import { subscribeInstallPrompt, triggerInstall, isIOSDevice, isStandalone } from '../utils/installPrompt'
+import { subscribeInstallPrompt, triggerInstall, isStandalone } from '../utils/installPrompt'
 
 function getPeriodBounds(period, quarterStart) {
   const today = new Date()
@@ -45,15 +45,19 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
   const [confirmReset, setConfirmReset]       = useState(false)
   const [resetDone, setResetDone]             = useState(false)
   const [installDeferred, setInstallDeferred] = useState(null)
-  const [ios]                                 = useState(isIOSDevice)
-  const [standalone]                          = useState(isStandalone)
+  const [standalone, setStandalone]           = useState(false)
 
   useEffect(() => { setInputVal(String(value)) }, [value])
 
+  // Check install status on mount
   useEffect(() => {
-    if (standalone || ios) return
-    return subscribeInstallPrompt(setInstallDeferred)
-  }, [standalone, ios])
+    setStandalone(isStandalone())
+    return subscribeInstallPrompt(prompt => {
+      setInstallDeferred(prompt)
+      // If the app was just installed, hide the option
+      if (!prompt) setStandalone(isStandalone())
+    })
+  }, [])
 
   function handleChange(e) { setInputVal(e.target.value) }
 
@@ -89,6 +93,7 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
     resetSettings()
     setConfirmReset(false)
     setResetDone(true)
+    setStandalone(isStandalone())
   }
 
   async function handleInstall() {
@@ -116,35 +121,21 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
           </button>
         </div>
 
-        {/* Add to Home Screen — always shown unless already installed */}
+        {/* Add to Home Screen — shown on any browser unless already installed */}
         {!standalone && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 flex items-center justify-between shadow-sm">
             <div>
               <p className="text-gray-900 dark:text-white text-sm font-medium">Add to Home Screen</p>
               <p className="text-gray-500 dark:text-gray-400 text-xs">
-                {ios ? 'Open in Safari · Tap Share → Add to Home Screen'
-                  : installDeferred ? 'Install as an app for quick offline access'
-                  : 'Tap ⋮ in Chrome → Add to Home screen'}
+                Install for quick offline access
               </p>
             </div>
-            {ios ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 shrink-0">
-                <path d="M12 2v13M7 10l5 5 5-5" /><path d="M5 19h14" />
-              </svg>
-            ) : installDeferred ? (
-              <button
-                onClick={handleInstall}
-                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
-              >
-                Install
-              </button>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 shrink-0">
-                <circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/>
-                <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
-                <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>
-              </svg>
-            )}
+            <button
+              onClick={handleInstall}
+              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shrink-0"
+            >
+              Install
+            </button>
           </div>
         )}
       </section>
