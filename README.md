@@ -6,8 +6,6 @@ A mobile-first web app to track your office attendance against your company's po
 
 ## Screenshots
 
-> Capture screenshots from the running app and place them in `docs/screenshots/`. Replace the paths below.
-
 | Dashboard | Calendar | Holidays | Settings |
 |:---------:|:--------:|:--------:|:--------:|
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Calendar](docs/screenshots/calendar.png) | ![Holidays](docs/screenshots/holidays.png) | ![Settings](docs/screenshots/settings.png) |
