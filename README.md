@@ -174,4 +174,4 @@ daysNeededToHitTarget(present, totalWorkingDays, targetDays)
 
 ## License
 
-MIT
+[MIT](LICENSE) © 2025 amrit-github
