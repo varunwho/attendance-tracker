@@ -72,9 +72,25 @@ export function useAttendance(quarterStart = 0) {
     refreshRecords()
   }
 
+  // Batch version: writes all entries then refreshes once (avoids N concurrent toArray races)
+  async function markDays(entries) {
+    await Promise.all(
+      entries.map(({ date, status }) =>
+        status ? db.attendance.put({ date, status }) : db.attendance.delete(date)
+      )
+    )
+    refreshRecords()
+  }
+
   async function addHoliday(date, label) {
     const iso = typeof date === 'string' ? date : toISO(date)
     await db.holidays.add({ date: iso, label })
+    refreshHolidays()
+  }
+
+  // Batch version: adds all holidays then refreshes once
+  async function addHolidays(isoArray, label) {
+    await Promise.all(isoArray.map(iso => db.holidays.add({ date: iso, label })))
     refreshHolidays()
   }
 
@@ -122,5 +138,5 @@ export function useAttendance(quarterStart = 0) {
     refreshHolidays()
   }
 
-  return { attendanceMap, holidays, holidayDates, markDay, addHoliday, deleteHoliday, clearPeriod, clearHolidaysPeriod, resetAll }
+  return { attendanceMap, holidays, holidayDates, markDay, markDays, addHoliday, addHolidays, deleteHoliday, clearPeriod, clearHolidaysPeriod, resetAll }
 }
