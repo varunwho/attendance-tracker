@@ -168,10 +168,11 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   const isCurrentMonth = year === today.getFullYear() && month === today.getMonth()
   const elapsedDays    = isCurrentMonth ? workingDays.filter(d => d <= todayISO) : workingDays
   const holidayCount   = holidayDates.filter(d => d >= toISO(monthStart) && d <= toISO(monthEnd)).length
-  const presentCount   = elapsedDays.filter(d => attendanceMap[d] === 'present').length
-  const absentCount    = elapsedDays.filter(d => attendanceMap[d] === 'absent').length
-  const unmarkedCount  = elapsedDays.filter(d => !attendanceMap[d]).length
-  const pct            = elapsedDays.length ? (presentCount / elapsedDays.length) * 100 : 0
+  const presentCount   = workingDays.filter(d => attendanceMap[d] === 'present').length
+  const absentCount    = workingDays.filter(d => attendanceMap[d] === 'absent').length
+  const unmarkedCount  = workingDays.filter(d => !attendanceMap[d]).length
+  const elapsedPresent = elapsedDays.filter(d => attendanceMap[d] === 'present').length
+  const pct            = elapsedDays.length ? (elapsedPresent / elapsedDays.length) * 100 : 0
   const onTrack        = pct >= 50
 
   return (
