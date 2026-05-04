@@ -7,7 +7,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-export default function CalendarView({ attendanceMap, holidayDates, markDay, addHoliday }) {
+export default function CalendarView({ attendanceMap, holidayDates, markDays, addHolidays }) {
   const today = new Date()
   const [viewDate, setViewDate]     = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selected, setSelected]     = useState(new Set())
@@ -70,24 +70,26 @@ export default function CalendarView({ attendanceMap, holidayDates, markDay, add
   }
 
   async function applyMode(mode) {
-    for (const iso of selected) {
-      const dow = new Date(iso).getDay()
-      if (dow === 0 || dow === 6) continue
-      if (holidaySetRef.current.has(iso)) continue
-      await markDay(iso, mode === 'clear' ? null : mode)
-    }
+    const entries = [...selected]
+      .filter(iso => {
+        const dow = new Date(iso).getDay()
+        return dow !== 0 && dow !== 6 && !holidaySetRef.current.has(iso)
+      })
+      .map(iso => ({ date: iso, status: mode === 'clear' ? null : mode }))
+    if (entries.length) await markDays(entries)
     setSelected(new Set())
     setHolStep(false)
   }
 
   async function applyHoliday() {
     const label = holLabel.trim() || 'PTO'
-    for (const iso of selected) {
+    const validIsos = [...selected].filter(iso => {
       const dow = new Date(iso).getDay()
-      if (dow === 0 || dow === 6) continue
-      if (holidaySetRef.current.has(iso)) continue   // skip already-holidays
-      await addHoliday(iso, label)
-      await markDay(iso, null)                        // clear any attendance mark
+      return dow !== 0 && dow !== 6 && !holidaySetRef.current.has(iso)
+    })
+    if (validIsos.length) {
+      await addHolidays(validIsos, label)
+      await markDays(validIsos.map(date => ({ date, status: null })))
     }
     setSelected(new Set())
     setHolStep(false)

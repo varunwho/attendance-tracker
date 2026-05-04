@@ -67,7 +67,7 @@ const TABS = [
 export default function App() {
   const [tab, setTab] = useState('dashboard')
   const { settings, update, reset: resetSettings } = useSettings()
-  const { attendanceMap, holidays, holidayDates, markDay, addHoliday, deleteHoliday, clearPeriod, clearHolidaysPeriod, resetAll } = useAttendance(settings.quarterStart)
+  const { attendanceMap, holidays, holidayDates, markDay, markDays, addHoliday, addHolidays, deleteHoliday, clearPeriod, clearHolidaysPeriod, resetAll } = useAttendance(settings.quarterStart)
 
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex flex-col max-w-lg mx-auto w-full">
@@ -82,7 +82,7 @@ export default function App() {
           <Dashboard attendanceMap={attendanceMap} holidayDates={holidayDates} settings={settings} />
         </div>
         <div className={tab === 'calendar' ? '' : 'hidden'}>
-          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDay={markDay} addHoliday={addHoliday} />
+          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDays={markDays} addHolidays={addHolidays} />
         </div>
         <div className={tab === 'holidays' ? '' : 'hidden'}>
           <HolidayManager holidays={holidays} addHoliday={addHoliday} deleteHoliday={deleteHoliday} />
