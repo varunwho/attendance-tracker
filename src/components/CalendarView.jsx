@@ -7,7 +7,13 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ]
 
-export default function CalendarView({ attendanceMap, holidayDates, markDays, addHolidays }) {
+// Parse YYYY-MM-DD as local date to avoid UTC-offset day-of-week errors
+function isoDow(iso) {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d).getDay()
+}
+
+export default function CalendarView({ attendanceMap, holidayDates, markDays, addHolidays, settings }) {
   const today = new Date()
   const [viewDate, setViewDate]     = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selected, setSelected]     = useState(new Set())
@@ -59,7 +65,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
     const el  = document.elementFromPoint(clientX, clientY)
     const iso = el?.closest('[data-iso]')?.dataset?.iso
     if (!iso) return
-    const dow = new Date(iso).getDay()
+    const dow = isoDow(iso)
     if (dow === 0 || dow === 6) return
     setSelected(prev => {
       if (prev.has(iso)) return prev
@@ -72,7 +78,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   async function applyMode(mode) {
     const entries = [...selected]
       .filter(iso => {
-        const dow = new Date(iso).getDay()
+        const dow = isoDow(iso)
         return dow !== 0 && dow !== 6 && !holidaySetRef.current.has(iso)
       })
       .map(iso => ({ date: iso, status: mode === 'clear' ? null : mode }))
@@ -84,7 +90,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   async function applyHoliday() {
     const label = holLabel.trim() || 'PTO'
     const validIsos = [...selected].filter(iso => {
-      const dow = new Date(iso).getDay()
+      const dow = isoDow(iso)
       return dow !== 0 && dow !== 6 && !holidaySetRef.current.has(iso)
     })
     if (validIsos.length) {
@@ -101,7 +107,10 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   function nextMonth() { setViewDate(new Date(year, month + 1, 1)); setSelected(new Set()); setHolStep(false) }
 
   // Non-holiday selected count (for hint text)
-  const nonHolSelected = [...selected].filter(iso => !holidaySet.has(iso) && new Date(iso).getDay() !== 0 && new Date(iso).getDay() !== 6)
+  const nonHolSelected = [...selected].filter(iso => {
+    const dow = isoDow(iso)
+    return !holidaySet.has(iso) && dow !== 0 && dow !== 6
+  })
 
   const cells = []
   for (let i = 0; i < firstDay; i++) {
@@ -167,13 +176,22 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   const workingDays    = getWorkingDays(monthStart, monthEnd, holidayDates)
   const isCurrentMonth = year === today.getFullYear() && month === today.getMonth()
   const elapsedDays    = isCurrentMonth ? workingDays.filter(d => d <= todayISO) : workingDays
-  const holidayCount   = holidayDates.filter(d => d >= toISO(monthStart) && d <= toISO(monthEnd)).length
+  const monthStartISO  = toISO(monthStart)
+  const monthEndISO    = toISO(monthEnd)
+  // Only count holidays that fall on weekdays — weekend holidays don't displace working days
+  const holidayCount   = holidayDates.filter(d => {
+    if (d < monthStartISO || d > monthEndISO) return false
+    const dow = isoDow(d)
+    return dow !== 0 && dow !== 6
+  }).length
   const presentCount   = workingDays.filter(d => attendanceMap[d] === 'present').length
   const absentCount    = workingDays.filter(d => attendanceMap[d] === 'absent').length
   const unmarkedCount  = workingDays.filter(d => !attendanceMap[d]).length
   const elapsedPresent = elapsedDays.filter(d => attendanceMap[d] === 'present').length
   const pct            = elapsedDays.length ? (elapsedPresent / elapsedDays.length) * 100 : 0
-  const onTrack        = pct >= 50
+  const { type, value: targetValue } = settings ?? {}
+  const targetPct      = type === 'percentage' ? targetValue : 50
+  const onTrack        = pct >= targetPct
 
   return (
     <div className="flex flex-col gap-4">
