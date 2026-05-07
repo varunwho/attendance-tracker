@@ -71,7 +71,7 @@ function PlanCard({ label, present, totalFull, target, type, period }) {
         <p className="text-gray-500 dark:text-gray-400 text-sm">{label}</p>
         <span className="text-[10px] bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium">Target</span>
       </div>
-      <p className="text-[11px] text-gray-400 dark:text-gray-500 -mt-1">All marked days this period, including ones you've planned ahead</p>
+      <p className="text-[11px] text-gray-400 dark:text-gray-500 -mt-1">All marked days & holidays this period, including ones planned ahead</p>
       <p className={`text-4xl font-bold ${goalMet ? 'text-green-500 dark:text-green-400' : 'text-blue-500 dark:text-blue-400'}`}>
         {present} / {required} days
       </p>
