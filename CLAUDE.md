@@ -40,7 +40,9 @@ All four tabs (`Dashboard`, `CalendarView`, `HolidayManager`, `Settings`) are **
 **Dashboard cards:**
 - The "Policy" card always uses the user's configured period (weekly/monthly/quarterly/yearly).
 - A separate "This Month" card appears **only when the policy period is not monthly** (to avoid duplication).
-- `buildCard()` computes stats identically for both, passing different `bounds`.
+- A **Plan card** always appears after the above cards. It counts `presentFull` — all working days in the full period marked present, including future pre-marked days — and shows progress toward the configured target.
+- `buildCard()` returns both `present` (elapsed days only) used by the Policy/Monthly cards and `presentFull` (full period, including future) used by the Plan card.
+- `PERIOD_SUFFIX` is a lowercase label map (e.g. `'this month'`) used in the Plan card description text.
 
 **Quarter logic:**
 `getQuarterBounds(date, quarterStart)` supports any fiscal Q1 start month (0–11) and handles year-boundary rollovers. `quarterStart` is stored in settings.
