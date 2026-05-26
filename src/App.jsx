@@ -82,7 +82,7 @@ export default function App() {
           <Dashboard attendanceMap={attendanceMap} holidayDates={holidayDates} settings={settings} />
         </div>
         <div className={tab === 'calendar' ? '' : 'hidden'}>
-          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} markDays={markDays} addHolidays={addHolidays} settings={settings} />
+          <CalendarView attendanceMap={attendanceMap} holidayDates={holidayDates} holidays={holidays} markDays={markDays} addHolidays={addHolidays} deleteHoliday={deleteHoliday} settings={settings} />
         </div>
         <div className={tab === 'holidays' ? '' : 'hidden'}>
           <HolidayManager holidays={holidays} addHoliday={addHoliday} deleteHoliday={deleteHoliday} />

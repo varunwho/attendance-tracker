@@ -13,7 +13,7 @@ function isoDow(iso) {
   return new Date(y, m - 1, d).getDay()
 }
 
-export default function CalendarView({ attendanceMap, holidayDates, markDays, addHolidays, settings }) {
+export default function CalendarView({ attendanceMap, holidayDates, holidays, markDays, addHolidays, deleteHoliday, settings }) {
   const today = new Date()
   const [viewDate, setViewDate]     = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selected, setSelected]     = useState(new Set())
@@ -24,10 +24,12 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
   const holidaySetRef = useRef(new Set(holidayDates))
   const labelInputRef = useRef(null)
 
-  const year       = viewDate.getFullYear()
-  const month      = viewDate.getMonth()
-  const todayISO   = toISO(today)
-  const holidaySet = new Set(holidayDates)
+  const year          = viewDate.getFullYear()
+  const month         = viewDate.getMonth()
+  const todayISO      = toISO(today)
+  const holidaySet    = new Set(holidayDates)
+  // Map from ISO date → DB id for user-added holidays only (national holidays have no DB id)
+  const holidayIdMap  = Object.fromEntries((holidays || []).map(h => [h.date, h.id]))
   holidaySetRef.current = holidaySet
 
   const firstDay    = new Date(year, month, 1).getDay()
@@ -83,6 +85,14 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
       })
       .map(iso => ({ date: iso, status: mode === 'clear' ? null : mode }))
     if (entries.length) await markDays(entries)
+
+    if (mode === 'clear') {
+      const idsToDelete = [...selected]
+        .filter(iso => holidayIdMap[iso] != null)
+        .map(iso => holidayIdMap[iso])
+      await Promise.all(idsToDelete.map(id => deleteHoliday(id)))
+    }
+
     setSelected(new Set())
     setHolStep(false)
   }
@@ -91,15 +101,40 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
     const label = holLabel.trim() || 'PTO'
     const validIsos = [...selected].filter(iso => {
       const dow = isoDow(iso)
-      return dow !== 0 && dow !== 6 && !holidaySetRef.current.has(iso)
+      return dow !== 0 && dow !== 6
     })
-    if (validIsos.length) {
-      await addHolidays(validIsos, label)
-      await markDays(validIsos.map(date => ({ date, status: null })))
+
+    // Delete existing user holidays so they can be re-added with the new label
+    const existingIds = validIsos
+      .filter(iso => holidayIdMap[iso] != null)
+      .map(iso => holidayIdMap[iso])
+    if (existingIds.length) {
+      await Promise.all(existingIds.map(id => deleteHoliday(id)))
     }
+
+    // Add isos that are either new (not a holiday) or were user holidays being updated
+    // Skip national holidays — they can't be overridden
+    const isosToAdd = validIsos.filter(iso =>
+      !holidaySetRef.current.has(iso) || holidayIdMap[iso] != null
+    )
+    if (isosToAdd.length) {
+      await addHolidays(isosToAdd, label)
+      await markDays(isosToAdd.map(date => ({ date, status: null })))
+    }
+
     setSelected(new Set())
     setHolStep(false)
     setHolLabel('PTO')
+  }
+
+  function openHolidayStep() {
+    // Pre-fill with existing label when a single user holiday is selected
+    if (selected.size === 1) {
+      const [iso] = [...selected]
+      const existing = (holidays || []).find(h => h.date === iso)
+      if (existing) setHolLabel(existing.label)
+    }
+    setHolStep(true)
   }
 
   function cancelSelection() { setSelected(new Set()); setHolStep(false) }
@@ -157,7 +192,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
         key={iso}
         data-iso={iso}
         onPointerDown={e => handlePointerDown(iso, dow, e)}
-        className={`rounded-xl p-2 flex flex-col items-center text-xs font-medium select-none transition-colors ${bgText} ${ring} ${isWeekend || isHoliday ? '' : 'cursor-pointer'}`}
+        className={`rounded-xl p-2 flex flex-col items-center text-xs font-medium select-none transition-colors ${bgText} ${ring} ${isWeekend ? '' : 'cursor-pointer'}`}
         style={{ userSelect: 'none', WebkitUserSelect: 'none', touchAction: 'none' }}
       >
         <span>{d}</span>
@@ -273,7 +308,9 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
           /* Step 2 — label input */
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-3 flex flex-col gap-2 shadow-xl">
             <p className="text-gray-500 dark:text-gray-400 text-xs">
-              Marking {nonHolSelected.length} day{nonHolSelected.length !== 1 ? 's' : ''} as holiday
+              {[...selected].some(iso => holidayIdMap[iso] != null)
+                ? `Update label for selected holiday${selected.size !== 1 ? 's' : ''}`
+                : `Marking ${nonHolSelected.length} day${nonHolSelected.length !== 1 ? 's' : ''} as holiday`}
             </p>
             <div className="flex gap-2">
               <input
@@ -289,7 +326,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
                 onClick={applyHoliday}
                 className="bg-purple-600 hover:bg-purple-500 text-white rounded-xl px-4 text-sm font-semibold transition-colors"
               >
-                Add
+                {[...selected].some(iso => holidayIdMap[iso] != null) ? 'Update' : 'Add'}
               </button>
               <button
                 onClick={() => setHolStep(false)}
@@ -305,7 +342,7 @@ export default function CalendarView({ attendanceMap, holidayDates, markDays, ad
             <button onClick={() => applyMode('present')} className="flex-1 bg-green-700 hover:bg-green-600 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Present</button>
             <button onClick={() => applyMode('absent')}  className="flex-1 bg-red-800 hover:bg-red-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Absent</button>
             <button onClick={() => applyMode('clear')}   className="flex-1 bg-gray-500 hover:bg-gray-400 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Clear</button>
-            <button onClick={() => setHolStep(true)}     className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Holiday</button>
+            <button onClick={openHolidayStep}            className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Holiday</button>
             <button onClick={cancelSelection}            className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl px-3 text-sm transition-colors">✕</button>
           </div>
         )}
