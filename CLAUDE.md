@@ -50,9 +50,63 @@ All four tabs (`Dashboard`, `CalendarView`, `HolidayManager`, `Settings`) are **
 **PWA install flow** (`utils/installPrompt.js`):
 Singleton that captures the `beforeinstallprompt` event. `subscribeInstallPrompt` lets components react when the deferred prompt becomes available or is consumed.
 
+## CalendarView — holiday interaction
+
+`CalendarView` receives `holidays` (full DB array with `{id, date, label}`) and `deleteHoliday` from `App.jsx` in addition to `holidayDates` (the merged ISO string array).
+
+Two derived maps are built each render:
+- `holidayIdMap` — `date → id` for user-added holidays only (national holidays have no DB id)
+- `holidayLabelMap` — `date → label` for user-added holidays
+
+**Selecting a holiday cell:**
+- `applyMode('clear')` — deletes user holidays whose dates appear in `selected` (via `holidayIdMap`) in addition to clearing attendance records. National holidays cannot be cleared.
+- `applyHoliday()` — for already-holiday dates in `selected`, deletes the old DB entry first then re-adds with the new label (label update). National holidays are skipped (not in `holidayIdMap`). For new dates, adds them as holidays directly.
+- `openHolidayStep()` — when a single user-holiday cell is selected, pre-fills `holLabel` with the existing holiday label so the user doesn't have to retype it. The label input step header and confirm button also switch to "Update" language.
+
+**Holiday cell initials** (`getHolidayInitials` in `CalendarView.jsx`):
+Displays abbreviated label in the cell instead of a generic "HOL". Matching is case-insensitive substring:
+
+| Contains | Shows |
+|---|---|
+| `sick` | SL |
+| `annual` | AL |
+| `casual` | CL |
+| `float` | FL |
+| `thank` | TH |
+| anything else / national | HOL |
+
+## HolidayManager — accordion layout
+
+User-added holidays are sorted descending (latest first) and grouped by month (`YYYY-MM`). Each month group renders as a collapsible accordion card with a distinct header (`bg-gray-50 dark:bg-gray-700`). All months start expanded. `closedMonths` (a `Set`) tracks which groups the user has collapsed.
+
+## Settings — Developer card
+
+A "Developer" section appears at the top of Settings, above Appearance. It renders a gradient card (`from-indigo-500 via-purple-600 to-pink-500`) with Amrit Suman's initials avatar, name, title, and platform pills (iOS · Android · Web).
+
+## Sarcastic messages (`utils/sarcasticMessages.js`)
+
+100 messages across 5 tiers, each a function `(data) => string`. Tier is selected by `pct / targetPct` ratio:
+
+| Ratio | Tier |
+|---|---|
+| ≥ 1.15 | `EXCELLENT` |
+| ≥ 1.0 | `ONTRACK` |
+| ≥ 0.85 | `CLOSE` |
+| ≥ 0.6 | `BEHIND` |
+| < 0.6 | `WAYBEHIND` |
+
+`data` shape: `{ pct, targetPct, present, absent, unmarked, elapsed, total, remaining }`.
+
+`getSarcasticMessage(data, idx)` returns `pool[idx % pool.length](data)`.
+
+In `CalendarView`, `msgIdx` state is re-randomised via `useEffect` whenever `msgSig` (`"${year}-${month}-${elapsedPresent}-${absentCount}"`) changes — i.e. on month navigation or any attendance mark/unmark. The message is only rendered when the month has at least one present or absent marking (`hasMarkings`). It appears at the bottom of the month summary card, separated by a top border.
+
+**Message guidelines:** No personal relationship references (family, etc.) — workplace and professional sarcasm only. Friends-as-figures-of-speech are acceptable.
+
 ## Key constraints
 
 - `db.attendance` primary key is `date` (string). `db.attendance.delete(iso)` and `.put({date, status})` use this key directly.
 - Dexie's `put` is upsert — safe to call even if a record already exists.
 - The `clearPeriod` and `clearHolidaysPeriod` functions in `useAttendance` do string-range filtering (`r.date >= start && r.date <= end`) — ISO dates sort correctly lexicographically.
 - `CalendarView` uses `holidaySetRef` (a `useRef` updated every render) inside async `applyMode`/`applyHoliday` to access the latest holiday set without stale closure issues.
+- `holidayIdMap` only contains user-added holidays — national holidays are excluded intentionally so they can never be deleted or overridden via the calendar UI.
