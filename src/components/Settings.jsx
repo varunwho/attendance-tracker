@@ -111,6 +111,29 @@ export default function Settings({ settings, update, clearPeriod, clearHolidaysP
     <div className="flex flex-col gap-6 pb-4">
       <h2 className="text-gray-900 dark:text-white font-semibold text-lg">Settings</h2>
 
+      {/* Developer */}
+      <section className="flex flex-col gap-3">
+        <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Developer</p>
+        <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl p-5 shadow-lg">
+          <div className="absolute -top-5 -right-5 w-28 h-28 rounded-full bg-white/10" />
+          <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-white/5" />
+          <div className="relative flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center ring-2 ring-white/30 shrink-0">
+              <span className="text-white font-bold text-xl tracking-tight">AS</span>
+            </div>
+            <div className="flex flex-col">
+              <p className="text-white font-bold text-base tracking-tight">Amrit Suman</p>
+              <p className="text-white/70 text-xs mt-0.5">Developer &amp; Designer</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <span className="text-white/80 text-[10px] font-medium bg-white/15 px-2 py-0.5 rounded-full">iOS</span>
+                <span className="text-white/80 text-[10px] font-medium bg-white/15 px-2 py-0.5 rounded-full">Android</span>
+                <span className="text-white/80 text-[10px] font-medium bg-white/15 px-2 py-0.5 rounded-full">Web</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Appearance */}
       <section className="flex flex-col gap-3">
         <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Appearance</p>
