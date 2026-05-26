@@ -186,9 +186,9 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
         ? 'bg-purple-500 text-white'
         : 'bg-blue-500 text-white'
     } else if (status === 'present') {
-      bgText = 'bg-[#98FB98] dark:bg-[#4CAF50] text-green-900 dark:text-white'
+      bgText = 'bg-green-600 dark:bg-green-700 text-white dark:text-green-100'
     } else if (status === 'absent') {
-      bgText = 'bg-[#9898FB] dark:bg-[#4C50AF] text-blue-900 dark:text-white'
+      bgText = 'bg-red-600 dark:bg-red-800 text-white dark:text-red-200'
     } else if (iso > todayISO) {
       bgText = 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
     }
@@ -271,8 +271,8 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
       </div>
 
       <div className="flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#98FB98] dark:bg-[#4CAF50] inline-block" /> Present</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#9898FB] dark:bg-[#4C50AF] inline-block" /> Absent</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-600 dark:bg-green-700 inline-block" /> Present</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-600 dark:bg-red-800 inline-block" /> Absent</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-200 dark:bg-orange-800 inline-block" /> Holiday / PTO</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 dark:bg-gray-700 inline-block" /> Weekend</span>
       </div>
@@ -291,8 +291,8 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
         <div className="grid grid-cols-5 gap-2 text-center">
           {[
             { label: 'Working',  value: workingDays.length, color: 'text-gray-900 dark:text-white' },
-            { label: 'Present',  value: presentCount,       color: 'text-green-500 dark:text-green-400' },
-            { label: 'Absent',   value: absentCount,        color: 'text-blue-500 dark:text-blue-400' },
+            { label: 'Present',  value: presentCount,       color: 'text-green-600 dark:text-green-400' },
+            { label: 'Absent',   value: absentCount,        color: 'text-red-600 dark:text-red-400' },
             { label: 'Holiday',  value: holidayCount,       color: 'text-orange-500 dark:text-orange-400' },
             { label: 'Unmarked', value: unmarkedCount,      color: 'text-yellow-600 dark:text-yellow-400' },
           ].map(({ label, value, color }) => (
@@ -351,8 +351,8 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
         ) : (
           /* Step 1 — action buttons */
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-3 flex gap-2 shadow-xl">
-            <button onClick={() => applyMode('present')} className="flex-1 bg-[#98FB98] dark:bg-[#4CAF50] hover:opacity-90 text-green-900 dark:text-white rounded-xl py-3 text-sm font-semibold transition-opacity">Present</button>
-            <button onClick={() => applyMode('absent')}  className="flex-1 bg-[#9898FB] dark:bg-[#4C50AF] hover:opacity-90 text-blue-900 dark:text-white rounded-xl py-3 text-sm font-semibold transition-opacity">Absent</button>
+            <button onClick={() => applyMode('present')} className="flex-1 bg-green-700 hover:bg-green-600 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Present</button>
+            <button onClick={() => applyMode('absent')}  className="flex-1 bg-red-800 hover:bg-red-700 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Absent</button>
             <button onClick={() => applyMode('clear')}   className="flex-1 bg-gray-500 hover:bg-gray-400 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Clear</button>
             <button onClick={openHolidayStep}            className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-xl py-3 text-sm font-semibold transition-colors">Holiday</button>
             <button onClick={cancelSelection}            className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl px-3 text-sm transition-colors">✕</button>
