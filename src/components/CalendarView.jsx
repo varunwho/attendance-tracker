@@ -13,6 +13,17 @@ function isoDow(iso) {
   return new Date(y, m - 1, d).getDay()
 }
 
+function getHolidayInitials(label) {
+  if (!label) return 'HOL'
+  const l = label.toLowerCase()
+  if (l.includes('sick'))    return 'SL'
+  if (l.includes('annual'))  return 'AL'
+  if (l.includes('casual'))  return 'CL'
+  if (l.includes('float'))   return 'FL'
+  if (l.includes('thank'))   return 'TH'
+  return 'HOL'
+}
+
 export default function CalendarView({ attendanceMap, holidayDates, holidays, markDays, addHolidays, deleteHoliday, settings }) {
   const today = new Date()
   const [viewDate, setViewDate]     = useState(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -28,8 +39,9 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
   const month         = viewDate.getMonth()
   const todayISO      = toISO(today)
   const holidaySet    = new Set(holidayDates)
-  // Map from ISO date → DB id for user-added holidays only (national holidays have no DB id)
-  const holidayIdMap  = Object.fromEntries((holidays || []).map(h => [h.date, h.id]))
+  // Map from ISO date → DB id / label for user-added holidays (national holidays have no DB entry)
+  const holidayIdMap    = Object.fromEntries((holidays || []).map(h => [h.date, h.id]))
+  const holidayLabelMap = Object.fromEntries((holidays || []).map(h => [h.date, h.label]))
   holidaySetRef.current = holidaySet
 
   const firstDay    = new Date(year, month, 1).getDay()
@@ -196,7 +208,7 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
         style={{ userSelect: 'none', WebkitUserSelect: 'none', touchAction: 'none' }}
       >
         <span>{d}</span>
-        {isHoliday                                          && <span className="text-[9px] mt-0.5">Hol</span>}
+        {isHoliday                                          && <span className="text-[9px] mt-0.5">{getHolidayInitials(holidayLabelMap[iso])}</span>}
         {status === 'present' && !isSelected && !isHoliday && <span className="text-[9px] mt-0.5">✓</span>}
         {status === 'absent'  && !isSelected && !isHoliday && <span className="text-[9px] mt-0.5">✗</span>}
       </div>

@@ -112,18 +112,18 @@ export default function HolidayManager({ holidays, addHoliday, deleteHoliday }) 
             {groups.map(group => {
               const isOpen = !closedMonths.has(group.key)
               return (
-                <div key={group.key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+                <div key={group.key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
                   <button
                     onClick={() => toggleMonth(group.key)}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-900 dark:text-white text-sm font-semibold">{group.label}</span>
-                      <span className="text-gray-400 dark:text-gray-500 text-[11px] bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                      <span className="text-gray-900 dark:text-gray-100 text-sm font-semibold">{group.label}</span>
+                      <span className="text-gray-600 dark:text-gray-300 text-[11px] bg-gray-200 dark:bg-gray-600 px-2 py-0.5 rounded-full">
                         {group.items.length}
                       </span>
                     </div>
-                    <span className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
+                    <span className={`text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
                       <ChevronDown />
                     </span>
                   </button>
