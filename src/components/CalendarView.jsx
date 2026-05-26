@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { toISO, getWorkingDays } from '../utils/workingDays'
+import { getSarcasticMessage } from '../utils/sarcasticMessages'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = [
@@ -29,8 +30,9 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
   const [viewDate, setViewDate]     = useState(new Date(today.getFullYear(), today.getMonth(), 1))
   const [selected, setSelected]     = useState(new Set())
   const [isDragging, setIsDragging] = useState(false)
-  const [holLabel, setHolLabel]     = useState('PTO')       // label input when marking as holiday
-  const [holStep, setHolStep]       = useState(false)       // true = show label input step
+  const [holLabel, setHolLabel]     = useState('PTO')
+  const [holStep, setHolStep]       = useState(false)
+  const [msgIdx, setMsgIdx]         = useState(() => Math.floor(Math.random() * 20))
   const dragging      = useRef(false)
   const holidaySetRef = useRef(new Set(holidayDates))
   const labelInputRef = useRef(null)
@@ -240,6 +242,29 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
   const targetPct      = type === 'percentage' ? targetValue : 50
   const onTrack        = pct >= targetPct
 
+  const remainingDays  = workingDays.length - elapsedDays.length
+  const hasMarkings    = (presentCount + absentCount) > 0
+
+  const msgData = {
+    pct,
+    targetPct,
+    present:   elapsedPresent,
+    absent:    absentCount,
+    unmarked:  unmarkedCount,
+    elapsed:   elapsedDays.length,
+    total:     workingDays.length,
+    remaining: remainingDays,
+  }
+
+  // Stable signature: changes when the month or its attendance counts change
+  const msgSig = `${year}-${month}-${elapsedPresent}-${absentCount}`
+
+  useEffect(() => {
+    setMsgIdx(Math.floor(Math.random() * 20))
+  }, [msgSig])
+
+  const sarcasticMsg = hasMarkings ? getSarcasticMessage(msgData, msgIdx) : null
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -305,6 +330,11 @@ export default function CalendarView({ attendanceMap, holidayDates, holidays, ma
         {!isCurrentMonth && absentCount === 0 && unmarkedCount > 0 && (
           <p className="text-yellow-600 dark:text-yellow-400 text-xs">
             {unmarkedCount} day{unmarkedCount !== 1 ? 's' : ''} not marked for this month
+          </p>
+        )}
+        {sarcasticMsg && (
+          <p className="text-gray-400 dark:text-gray-500 text-xs italic text-center border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+            {sarcasticMsg}
           </p>
         )}
       </div>
